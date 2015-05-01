@@ -83,7 +83,7 @@ gulp.task 'server', ->
     script: server_main
     watch: [server_main]
     execMap:
-      coffee: "#{modules_path}/.bin/coffee"
+      coffee: "coffee"
     env:
       PORT: process.env.PORT or 3000
 

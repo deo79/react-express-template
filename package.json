@@ -10,7 +10,7 @@
     "babel": "^5.0.8",
     "babel-core": "^5.0.8",
     "babel-loader": "^5.0.0",
-    "body-parser": "^1.12.2",
+    "body-parser": "^1.12.3",
     "bower": "^1.4.1",
     "coffee-loader": "^0.7.2",
     "coffee-reactify": "^3.0.0",
@@ -34,7 +34,11 @@
     "rimraf": "^2.3.2",
     "semantic-ui-css": "^1.11.6",
     "serve-favicon": "^2.2.0",
-    "transform-loader": "^0.2.1"
+    "transform-loader": "^0.2.1",
+    "react-semantify": "^0.3.1",
+    "express-enrouten": "^1.2.0",
+    "react-form-data": "^0.2.3",
+    "async": "^0.9.0"
   },
   "devDependencies": {}
 }
