@@ -10,12 +10,21 @@ var ui = {};
 
 ui.formSetup = function(model, selector) {
 	selector = selector || model + 'Form';
+	var formSelector = '.ui.form.' + selector;
+	var container = $(formSelector);
+	if($(formSelector).parents('.ui.modal').length) {
+		container = $(formSelector).parents('.ui.modal');
+	}
+	$(container)
+		.dimmer('show')
+		.dimmer('set opacity', 0.1);
 	$.get('/form/setup/'+model)
 		.done(function(validationRules) {
-			$('.ui.form.' + selector)
-				.form(validationRules, {
-					inline: true
-				});
+			$(formSelector)
+				.form(validationRules);
+			$(container).addClass('dimmable dimmed');
+			$(container)
+				.dimmer('hide');
 		});
 }
 
@@ -24,7 +33,11 @@ ui.loginModal = function() {
 		mixins: [FormData],
 		handleSubmit: function(e) {
 			if( e ) {
+				console.log('preventDefault');
+				console.log(e);
 				e.preventDefault();
+			} else {
+				console.log('no event to preventDefault')
 			}
 			console.log(this.formData);
 			$.post('/user/authenticate', this.formData)
@@ -72,8 +85,11 @@ ui.loginModal = function() {
 						</form>
 					</div>
 					<div className="actions">
-						<div className="ui button close">Cancel</div>
-						<div className="ui primary button" onClick={this.makeItSubmit}>Login</div>
+						<div className="ui buttons">
+							<div className="ui button close">Cancel</div>
+							<div className="or"></div>
+							<div className="ui primary button" onClick={this.makeItSubmit}>Login</div>
+						</div>
 					</div>
 				</div>
 			);
