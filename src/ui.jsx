@@ -20,8 +20,49 @@ ui.formSetup = function(model, selector) {
 		.dimmer('set opacity', 0.1);
 	$.get('/form/setup/'+model)
 		.done(function(validationRules) {
+			/*$(formSelector).on('submit', function(e) {
+				e.stopImmediatePropagation();
+			});*/
 			$(formSelector)
-				.form(validationRules);
+				.form(validationRules, {
+					verbose: true,
+					debug:true,
+					onValid: function(){
+						console.log('onValid');
+						console.log(arguments);
+					},
+					onSuccess: function(e){
+						console.log('onSuccess');
+						//ui.loginModal.handleSubmit();
+						console.log('to', typeof ui.loginModal.submitter);
+						//console.log(JSON. ui.loginModal);
+						ui.loginModal.submitter();
+						console.log(arguments);
+						if(e) {
+							e.preventDefault();
+						}
+						//$(formSelector).form('validate form');
+					}
+				})
+				.form('onSuccess', function() {
+					console.log('onSuccess');
+					console.log(arguments);
+				})
+				.form('onValid', function(){
+					console.log('onValid');
+					console.log(arguments);
+				})
+				.form('onInvalid', function(){
+					console.log('onInvalid');
+					console.log(arguments);
+				})
+				.form('on', 'change')
+				.form('keyboardShortcuts', false)
+				.form('debug', true)
+				.form('verbose', true);
+
+			//$(formSelector).off('submit'); // remove semantic's submit handler
+	
 			$(container).addClass('dimmable dimmed');
 			$(container)
 				.dimmer('hide');
@@ -29,13 +70,40 @@ ui.formSetup = function(model, selector) {
 }
 
 ui.loginModal = function() {
+	var LoginForm = React.createClass({
+		mixins: [FormData],
+		render: (
+			<form ref="UserForm" className="ui form UserForm" onChange={this.updateFormData} onSubmit={this.handleSubmit}>
+				<div className="ui error message"></div>
+				<div className="two fields">
+					<div className="required field">
+						<label>Username</label>
+						<div className="ui icon input">
+							<input type="text" name="username" ref="username" placeholder="Username" />
+							<i className="user icon"></i>
+						</div>
+					</div>
+					<div className="required field">
+						<label>Password</label>
+						<div className="ui icon input">
+							<input type="password" name="password" ref="password" placeholder="Password" />
+							<i className="lock icon"></i>
+						</div>
+					</div>
+				</div>
+				<input className="hidden" type="submit" />
+			</form>
+		)
+	});
 	var LoginModal = React.createClass({
 		mixins: [FormData],
 		handleSubmit: function(e) {
 			if( e ) {
 				console.log('preventDefault');
 				console.log(e);
+				//e.stopPropagation();
 				e.preventDefault();
+				return;
 			} else {
 				console.log('no event to preventDefault')
 			}
