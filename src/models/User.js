@@ -14,12 +14,12 @@ User.define({
 				type: 'length[4]',
 				prompt: 'Your username must be at least 4 characters long.'
 			}],
-			async: function(val, cb) {
+			async: function(val, data, cb) {
 				var output = {
 					valid: true,
 					message: ''
 				};
-				if (!val) {
+				if (val.length < 4) {
 					output.valid = false;
 					output.message = 'Please provide a username';
 				}
@@ -38,15 +38,15 @@ User.define({
 				type: 'length[6]',
 				prompt: 'Your password must be at least 6 characters long.'
 			}],
-			async: function(val, cb) {
+			async: function(val, data, cb) {
 				val = User.safeToString(val);
 				var output = {
 					valid: true,
 					message: ''
 				};
-				if (val.length < 5) {
+				if (val.length < 6) {
 					output.valid = false;
-					output.message = 'Please provide at least a 5 character password';
+					output.message = 'Please provide at least a 6 character password';
 				}
 				cb(null, output);
 			}

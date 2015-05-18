@@ -8,7 +8,7 @@ var $ = require('jquery');
 
 var ui = {};
 
-ui.formSetup = function(model, selector) {
+ui.formSetup = function(model, successCallback, selector) {
 	selector = selector || model + 'Form';
 	var formSelector = '.ui.form.' + selector;
 	var container = $(formSelector);
@@ -33,33 +33,12 @@ ui.formSetup = function(model, selector) {
 					},
 					onSuccess: function(e){
 						console.log('onSuccess');
-						//ui.loginModal.handleSubmit();
-						console.log('to', typeof ui.loginModal.submitter);
-						//console.log(JSON. ui.loginModal);
-						ui.loginModal.submitter();
-						console.log(arguments);
 						if(e) {
 							e.preventDefault();
 						}
-						//$(formSelector).form('validate form');
+						successCallback(e);
 					}
 				})
-				.form('onSuccess', function() {
-					console.log('onSuccess');
-					console.log(arguments);
-				})
-				.form('onValid', function(){
-					console.log('onValid');
-					console.log(arguments);
-				})
-				.form('onInvalid', function(){
-					console.log('onInvalid');
-					console.log(arguments);
-				})
-				.form('on', 'change')
-				.form('keyboardShortcuts', false)
-				.form('debug', true)
-				.form('verbose', true);
 
 			//$(formSelector).off('submit'); // remove semantic's submit handler
 	
@@ -72,28 +51,51 @@ ui.formSetup = function(model, selector) {
 ui.loginModal = function() {
 	var LoginForm = React.createClass({
 		mixins: [FormData],
-		render: (
-			<form ref="UserForm" className="ui form UserForm" onChange={this.updateFormData} onSubmit={this.handleSubmit}>
-				<div className="ui error message"></div>
-				<div className="two fields">
-					<div className="required field">
-						<label>Username</label>
-						<div className="ui icon input">
-							<input type="text" name="username" ref="username" placeholder="Username" />
-							<i className="user icon"></i>
+		componentDidMount: function() {
+			ui.formSetup('User', this.submit);
+		},
+		onValidSubmit: function(e) {
+			if( e ) {
+				e.preventDefault();
+			}
+			$.post('/user/authenticate', this.formData)
+				.done(function(result) {
+					console.log(result);
+					if(result.valid) {
+						console.log(result.valid);
+					} else {
+						$('.ui.form.UserForm').removeClass('success').addClass('error'); // TODO: dynamic names
+						$('.ui.form.UserForm').form('add errors',result.messages); // TODO: dynamic names
+					}
+				});
+		},
+		submit: function(e) {
+			this.onValidSubmit(e);
+		},
+		render: function() {
+			return (
+				<form ref="UserForm" className="ui form UserForm" onChange={this.updateFormData} onSubmit={this.submit}>
+					<div className="ui error message"></div>
+					<div className="two fields">
+						<div className="required field">
+							<label>Username</label>
+							<div className="ui icon input">
+								<input type="text" name="username" ref="username" placeholder="Username" />
+								<i className="user icon"></i>
+							</div>
+						</div>
+						<div className="required field">
+							<label>Password</label>
+							<div className="ui icon input">
+								<input type="password" name="password" ref="password" placeholder="Password" />
+								<i className="lock icon"></i>
+							</div>
 						</div>
 					</div>
-					<div className="required field">
-						<label>Password</label>
-						<div className="ui icon input">
-							<input type="password" name="password" ref="password" placeholder="Password" />
-							<i className="lock icon"></i>
-						</div>
-					</div>
-				</div>
-				<input className="hidden" type="submit" />
-			</form>
-		)
+					<input className="hidden" type="submit" />
+				</form>
+			)
+		}
 	});
 	var LoginModal = React.createClass({
 		mixins: [FormData],
@@ -121,7 +123,7 @@ ui.loginModal = function() {
 		},
 		makeItSubmit: function() {
 			$(React.findDOMNode(this.refs.UserForm)).form('validate form');
-			this.handleSubmit();
+			this.refs.UserForm.submit();
 		},
 		render: function() {
 			return (
@@ -131,26 +133,7 @@ ui.loginModal = function() {
 						Login
 					</div>
 					<div className="content">
-						<form ref="UserForm" className="ui form UserForm" onChange={this.updateFormData} onSubmit={this.handleSubmit}>
-							<div className="ui error message"></div>
-							<div className="two fields">
-								<div className="required field">
-									<label>Username</label>
-									<div className="ui icon input">
-										<input type="text" name="username" ref="username" placeholder="Username" />
-										<i className="user icon"></i>
-									</div>
-								</div>
-								<div className="required field">
-									<label>Password</label>
-									<div className="ui icon input">
-										<input type="password" name="password" ref="password" placeholder="Password" />
-										<i className="lock icon"></i>
-									</div>
-								</div>
-							</div>
-							<input className="hidden" type="submit" />
-						</form>
+						<LoginForm ref="UserForm" />
 					</div>
 					<div className="actions">
 						<div className="ui buttons">
@@ -174,7 +157,6 @@ ui.loginModal = function() {
 				.modal('detachable', false)
 				.modal('setting', 'transition', 'horizontal flip')
 				.modal('show');
-			ui.formSetup('User');
 		}
 	});
 	if( !$('.dimmer.modals').length ) {
